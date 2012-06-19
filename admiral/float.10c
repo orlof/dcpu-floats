@@ -31,13 +31,13 @@
 ;
 ; USAGE
 ;
-; Based on the Pascal programming language's calling convention, 
+; Based on the Pascal programming language's call convention, 
 ; the parameters are pushed on the stack in left-to-right order, 
 ; and the callee is responsible for balancing the stack before 
 ; return.
 ;
 ;  - All methods pollute x, other registers are preserved
-;  - Return value is always stored in x
+;  - Possible return value is stored in x
 ;----------------------------------------------------------------
 
 ;----------------------------------------------------------------
