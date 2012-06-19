@@ -1,0 +1,85 @@
+;----------------------------------------------------------------
+; MEMORY
+;----------------------------------------------------------------
+#define heap_size	30
+
+#segment data
+:heap	dat	30,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,0,0,0
+
+#segment code
+;----------------------------------------------------------------
+; void *malloc(uint16 size)
+;----------------------------------------------------------------
+:malloc
+	set x, 0
+	set y, malloc_begin
+	set pc, nc_preamble
+
+:malloc_begin
+	set x, heap
+	arg(y, 1,1)
+
+:malloc_loop
+	ifn x, heap + heap_size		; end of heap
+		set pc, malloc_loop_not_end
+
+	set x, 0							; out of heap space, todo gc
+	set y, 1
+	set pc, nc_postamble
+
+:malloc_loop_not_end
+	set a, [x]							; block size, negative if reserved
+	ifg 0x8000, a						; free
+		set pc, malloc_loop_check_size
+
+	sub x, a							; skip reserved block
+	set pc, malloc_loop
+		
+:malloc_loop_check_size
+	ifg a, y
+		set pc, malloc_found
+
+	add x, a
+	set pc, malloc_loop
+
+:malloc_found
+	add y, 1							; total space needed
+
+	set b, y							; reserved size negated
+	xor b, 0xffff
+	add b, 1
+	set [x], b							; mark reserved
+
+	ife a, y
+		set pc, malloc_end 
+
+	sub a, y							; previous block size - space needed
+	add y, x							; address of new empty space
+
+	set [y], a							; store
+
+:malloc_end
+	add x, 1
+	set y, 1
+	set pc, nc_postamble
+	
+;----------------------------------------------------------------
+; void free(void *ptr)
+;----------------------------------------------------------------
+:free
+	set x, 0
+	set y, free_begin
+	set pc, nc_preamble
+
+:free_begin
+	arg(x, 1,1)
+
+	sub x, 1						; address of space hdr
+
+	set y, [x]						; mark space as free
+	xor y, 0xffff
+	add y, 1
+	set [x], y
+
+	set y, 0
+	set pc, nc_postamble

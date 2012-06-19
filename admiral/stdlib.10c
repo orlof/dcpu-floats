@@ -1,0 +1,90 @@
+#segment code
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   find the devices
+;
+:detect_hardware
+set j, 0xFFFF
+hwn i
+:hwloop
+add j, 1
+hwq j
+ife j, i
+   set pc, pop
+ife a, 0xf615
+    ife b, 0x7349
+        set [monitor], j
+ife a, 0x7406
+    ife b, 0x30cf
+        set [keyboard], j
+ife a, 0xb402
+    ife b, 0x12d0
+        set [clock], j
+set pc, hwloop
+     
+     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   start the monitor
+;
+:init_monitor
+set a, 0
+set b, 0x8000
+hwi [monitor]
+set pc, pop
+     
+     
+     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   print message
+;      A - pointer to message
+;      B - offset
+;
+:print
+set push, i
+set push, j
+set i, 0x8000
+add i, b
+set j, a
+:print_loop
+set [i], [j]
+bor [i], [color]
+add i, 1
+add j, 1
+ifn [j], 0
+    set pc, print_loop
+set j, pop
+set i, pop
+set pc, pop
+     
+     
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;
+;   clear the screen
+;
+:cls
+set push, i
+set i, 0x8000
+:cls_loop
+set [i], 0
+add i, 1
+ifn i, 0x8180
+   set pc, cls_loop
+set i, pop
+set pc, pop
+     
+     
+#segment data 
+:color
+DAT 0x7000
+     
+:keyboard
+DAT 0
+ 
+:monitor
+DAT 0
+ 
+:clock
+DAT 0
+     
