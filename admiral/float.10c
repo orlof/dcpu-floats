@@ -61,6 +61,11 @@
 ;0X10C-DEVKIT MACROS
 ;----------------------------------------------------------------
 
+; sets the value of argument to dest
+; index is the argument number starting from the left 
+;   first argument = 1
+; total is the total number of arguments
+;  (index is always from 1 to total)
 #macro arg(dest, index, total) {
 	sub z, index
 	add z, total
@@ -71,14 +76,19 @@
 	add z, index
 
         ; this macro could be replaced with one-liner,
-        ; as currently index and total are always constants
+        ; as index and total are constants
         ; "set dest, [z -index +total +11]"
 }
 
+; sets the address of the local variable in index to dest
 #macro local(dest, index) {
 	sub z, index
 	set dest, z
 	add z, index
+
+        ; this macro could be replaced with one-liner,
+        ; as index is constant
+        ; "set dest, [z - index]"
 }
 
 #segment data
