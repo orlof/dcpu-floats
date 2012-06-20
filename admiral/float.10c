@@ -38,6 +38,8 @@
 ;
 ;  - All methods pollute x, other registers are preserved
 ;  - Possible return value is stored in x
+;  - Floats are stored in memory using IEEE754 single precision
+;    format (32 bits = 2 memory locations)
 ;----------------------------------------------------------------
 
 ;----------------------------------------------------------------
