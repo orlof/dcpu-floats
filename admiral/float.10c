@@ -1526,35 +1526,37 @@
 
 	jsr nc_postamble
 
-; postamble
+; postamble - function can call this subroutine to cleanup stack, restore 
+; registers and return from subroutine
 ; x:   return value
 :nc_postamble
-	set sp, z				; restore fp
-	set z, pop
+	set sp, z				; free local vars
+	set z, pop				; restore fp
 	
-	set y, pop
+	set y, pop				; restore registers
 	set j, pop
 	set i, pop
 	set c, pop
 	set b, pop
 	set a, pop
 
-	add sp, 2				; set sp to num args
+	add sp, 2				; pop preamble return address and sizeof local vars
 
 	add [sp], sp			; calculate ptr to 1st arg
-	add [sp], 1
+	add [sp], 1				; sp + num args + 1
 
 	; no good... but i couldn't figure out better way to do this
-	set push, z				; store fp temporarily
-	set z, [sp+1]			; ptr to 1st arg
-	set [z], [sp+2]			; set *arg1=rts
-	set z, pop				; restore fp
-	set sp, [sp]			; set sp to arg1
+	set push, z				; store fp to free a register for processing
+	set z, [sp+1]			; peek ptr to 1st arg
+	set [z], [sp+2]			; overwrite 1st arg with original return address
+	set z, pop				; pop fp
+	set sp, [sp]			; clear stack except for the return address
 	; ---
 
 	set pc, pop				; rts
 
-; preamble
+; preamble - function can call this subroutine before doing ANYTHING else 
+; than pushing sizeof (args) and sizeof(local vars) to stack
 ; Stack after preamble
 ;         [preamble]
 ; [sp+ 0] local variable (<-sp)
@@ -1598,57 +1600,53 @@
 ;	uint16 num_chars)
 ;----------------------------------------------------------------
 :strcmp
-	set push, 3
-	set push, 0
-	set pc, nc_preamble
+	set push, 4				; sizeof(args)
+	set push, 0				; sizeof(local vars)
+	jsr nc_preamble
 
-:strcmp_begin
-	arg(i, 1,4)	; str1
-	arg(j, 2,4)	; str2
-	arg(c, 3,4)	; ignore case
-	arg(y, 4,4) ; n
+	set i, [z - 14]			; read str1
+	set j, [z - 13]			; read str2
+	set c, [z - 12]			; read ignore_case
+	set y, [z - 11]			; read n
 	
 :strcmp_loop
-	set a, [i]
-	set b, [j]
-	add i, 1
-	add j, 1
+	set a, [i]				; read char from str1
+	sti b, [j]				; read char from str2 and increment ptrs'
 
-	ife a, 0
+	ife a, 0				; if end of str1
 		set pc, strcmp_finish
 
-	ife y, 0
+	ife y, 0				; if n-characters already compared
 		set pc, strcmp_finish
-	sub y, 1
+	sub y, 1				; subtract character count
 
-	ife c, 0
+	ife c, 0				; if ignore case, jmp to check
 		set pc, strcmp_loop_check
 
-	ifg a, 'Z'
-		set pc, strcmp_loop_to_lower_b
-	ifg 'A', a
-		set pc, strcmp_loop_to_lower_b
+	ifg a, 'A'-1			; a = toLower(a)
+		ifl a, 'Z'+1
+			add a, 'a' - 'A'
 
-	add a, 'a' - 'A'
-	
-:strcmp_loop_to_lower_b
-	ifg b, 'Z'
-		set pc, strcmp_loop_check
-	ifg 'A', b
-		set pc, strcmp_loop_check
+	ifg b, 'A'-1			; b = toLower(b)
+		ifl b, 'Z'+1
+			add b, 'a' - 'A'
 
-	add b, 'a' - 'A'
+	;ifg a, 'Z'				; if a is upper, convert to lower
+	; 	set pc, strcmp_loop_to_lower_b
+	;ifg 'A', a
+	;	set pc, strcmp_loop_to_lower_b
+	;
+	;add a, 'a' - 'A'
 	
 :strcmp_loop_check
 	ife a, b
 		set pc, strcmp_loop
 
 :strcmp_finish
-	set x, 1
-	sub a, b
-	ifn ex, 0
+	set x, 0
+	ifl a, b
 		set x, -1
-	ife a, 0
-		set x, 0
-	set y, 2
-	set pc, nc_postamble
+	ifg a, b
+		set x, 1
+
+	jsr nc_postamble
