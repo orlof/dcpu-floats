@@ -41,7 +41,9 @@ return.
 
  - All methods pollute x, other registers are preserved
  - Possible return value is stored in x
- - z is used as Frame Pointer (fp)
+ - Z is used as Frame Pointer (fp)
+ - Floats are stored in memory using IEEE754 single precision 
+   format (32 bits = 2 memory locations)
 
 This means that local variable space starts from z+1 and continues to
 z+2, z+3 etc. Arguments are located in z-11 (rightmost), z-12 
