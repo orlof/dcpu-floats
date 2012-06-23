@@ -42,19 +42,19 @@
 ;   [-5] struct float_register
 ;----------------------------------------------------------------
 :atof
-	set push, 2
-	set push, 5
+	set push, 2			; sizeof(args)
+	set push, 5			; sizeof(vars)
 	jsr nc_preamble
 
 :atof_begin
-	set push, [z+12]
-	set push, z
+	set push, [z+12]	; str
+	set push, z			; float_register
 	sub peek, 5
 	jsr reg_atof
 
 	set push, z
 	sub peek, 5
-	set push, [z+11]
+	set push, [z+11]	; f
 	jsr reg_to_float
 	
 	jsr nc_postamble
@@ -71,14 +71,14 @@
 	jsr nc_preamble
 
 :ftoa_begin
-	set push, [z+12]
-	set push, z
+	set push, [z+12]		; f
+	set push, z				; float_register
 	sub peek, 5
 	jsr float_to_reg
 
-	set push, z
+	set push, z				; float_register
 	sub peek, 5
-	set push, [z+11]
+	set push, [z+11]		; buffer
 	jsr reg_ftoa
 	
 	jsr nc_postamble
@@ -95,14 +95,14 @@
 	jsr nc_preamble
 
 :itof_begin
-	set push, [z+12]
+	set push, [z+12]		; i
 	set push, z
 	sub peek, 5
 	jsr int_to_reg
 
 	set push, z
 	sub peek, 5
-	set push, [z+11]
+	set push, [z+11]		; f
 	jsr reg_to_float
 	
 	jsr nc_postamble
@@ -121,13 +121,14 @@
 	jsr nc_preamble
 
 :ftoi_begin
-	set push, [z+11]
+	set push, [z+12]		; f
 	set push, z
 	sub peek, 5
 	jsr float_to_reg
 
 	set push, z
 	sub peek, 5
+	set push, [z+11]		; i
 	jsr reg_to_int
 	
 	jsr nc_postamble
@@ -147,12 +148,12 @@
 	jsr nc_preamble
 
 :fcmp_begin
-	set push, [z+12]
+	set push, [z+12]		; f1
 	set push, z
 	sub peek, 10
 	jsr float_to_reg
 
-	set push, [z+11]
+	set push, [z+11]		; f2
 	set push, z
 	sub peek, 5
 	jsr float_to_reg
@@ -230,12 +231,12 @@
 ;Common initialization code for fadd, fsub, fmul and fdiv
 ;----------------------------------------------------------------
 :nc_init_arithmetic
-	set push, [z+12]
+	set push, [z+12]		; 1st operand
 	set push, z
 	sub peek, 10
 	jsr float_to_reg
 
-	set push, [z+11]
+	set push, [z+11]		; 2nd operand
 	set push, z
 	sub peek, 5
 	jsr float_to_reg
@@ -244,11 +245,11 @@
 	sub peek, 10
 	set push, z
 	sub peek, 5
-	jsr a							; calculate
+	jsr a					; calculate
 
 	set push, z
 	sub peek, 10
-	set push, [z+13]
+	set push, [z+13]		; result
 	jsr reg_to_float
 
 	jsr nc_postamble
@@ -286,8 +287,8 @@
 	jsr nc_preamble
 
 :float_to_reg_begin
-	set i, [z+11]
-	set j, [z+12]
+	set i, [z+11]					; reg
+	set j, [z+12]					; f
 
 	set a, [j]
 	set b, a
@@ -343,8 +344,8 @@
 	jsr nc_preamble
 
 :reg_to_float_begin
-	set i, [z+12]
-	set j, [z+11]
+	set i, [z+12]					; reg
+	set j, [z+11]					; f
 
 	set a, [EXP+i]
 	shl a, 7
@@ -375,8 +376,8 @@
 	jsr nc_preamble
 
 :int_to_reg_begin
-	set i, [z+11]
-	set j, [z+12]
+	set i, [z+11]					; reg
+	set j, [z+12]					; i
 
 	set x, [  j]					; read int to registers
 	set y, [1+j]
@@ -433,8 +434,8 @@
 	jsr nc_preamble
 
 :uint16_to_reg_begin
-	set i, [z+11]
-	set x, [z+12]
+	set i, [z+11]					; reg
+	set x, [z+12]					; i
 
 	ifg x, 0						; if int is not zero
 		set pc, uint16_to_reg_exp
@@ -473,8 +474,8 @@
 	jsr nc_preamble
 
 :reg_to_int_begin
-	set i, [z+11]
-	set j, [z+12]
+	set i, [z+12]						; reg
+	set j, [z+11]						; i
 
 	set a, [MASK+i]
 	ife a, MASK_NAN
@@ -534,7 +535,7 @@
 	jsr nc_preamble
 
 :reg_to_uint16_begin
-	set i, [z+11]
+	set i, [z+11]						; reg
 
 	ifn [SIGN+i], 0
 		set pc, reg_to_uint16_zero
@@ -553,11 +554,8 @@
 	sub a, b
 
 	set x, [HIGH+i]
-;	set x, [LOW+i]
 
 	shr x, a							; shift right 1-15
-;	shr b, a
-;	bor x, ex
 	
 :reg_to_uint16_finish
 	jsr nc_postamble
@@ -577,7 +575,7 @@
 	jsr nc_preamble
 
 :reg_cmp_begin
-	set j, [z+12]
+	set j, [z+12]					; reg1
 	set i, z
 	sub i, 5
 	jsr nc_jreg2ireg
@@ -585,7 +583,7 @@
 	set i, z
 	sub i, 5
 	set push, i						; 1st operand register
-	set push, [z+11]
+	set push, [z+11]				; reg2
 	jsr reg_sub						; calculate
 	
 	set x, 0
@@ -641,12 +639,12 @@
 	jsr nc_preamble
 
 :reg_sub_begin
-	set j, [z+11]
+	set j, [z+11]					; f2
 	set i, z
 	sub i, 5
 	jsr nc_jreg2ireg
 
-	set i, [z+12]
+	set i, [z+12]					; f1
 	set j, z
 	sub j, 5
 
@@ -664,12 +662,12 @@
 	jsr nc_preamble
 
 :reg_add_begin
-	set j, [z+11]
+	set j, [z+11]					; t2
 	set i, z
 	sub i, 5
 	jsr nc_jreg2ireg
 
-	set i, [z+12]
+	set i, [z+12]					; t1
 	set j, z
 	sub j, 5
 
@@ -836,8 +834,8 @@
 	jsr nc_preamble
 
 :reg_mul_begin
-	set i, [z+12]
-	set j, [z+11]
+	set i, [z+12]					; f1
+	set j, [z+11]					; f2
 
 	; set the sign
 	xor [SIGN+i], [SIGN+j]
@@ -926,8 +924,8 @@
 	jsr nc_preamble
 
 :reg_div_begin
-	set i, [z+12]
-	set j, [z+11]
+	set i, [z+12]					; divident
+	set j, [z+11]					; divisor
 
 	; set the sign
 	xor [SIGN+i], [SIGN+j]
@@ -1038,10 +1036,10 @@
 	
 :reg_pow10_begin
 	set j, CONST_1F
-	set i, [z+11]
+	set i, [z+11]					; reg
 	jsr nc_jreg2ireg
 
-	set a, [z+12]
+	set a, [z+12]					; x
 
 	set b, 1
 	ifg 0x8000, a
@@ -1089,10 +1087,10 @@
 	set [z-4], 0					; mantissa_sign
 	set [z-5], 0					; exp_sign
 
-	set c, [z+12]
+	set c, [z+12]					; a
 	set [z-11], c					; char ptr
 
-	set i, [z+11]
+	set i, [z+11]					; reg
 	jsr nc_pzero2ireg				; zero target register
 
 	set j, z
@@ -1343,12 +1341,12 @@
 	jsr nc_preamble
 	
 :reg_ftoa_begin
-	set j, [z+12]
+	set j, [z+12]		; reg
 	set i, z
 	sub i, 5
 	jsr nc_jreg2ireg
 
-	set j, [z+11]
+	set j, [z+11]		; buf
 
 	ifn [MASK+i], MASK_NAN
 		set pc, ftoa_check_inf
@@ -1562,7 +1560,7 @@
 	set i, [z + 14]			; read str1
 	set j, [z + 13]			; read str2
 	set c, [z + 12]			; read ignore_case
-	set y, [z + 11]			; read n
+	set y, [z + 11]			; read num_chars
 	
 :strcmp_loop
 	set a, [i]				; read char from str1
