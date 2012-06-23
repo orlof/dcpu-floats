@@ -17,7 +17,7 @@
 
 :malloc_begin
 	set x, heap
-	arg(y, 1,1)
+	set y, [z+11]
 
 :malloc_loop
 	ifn x, heap + heap_size		; end of heap
@@ -72,7 +72,7 @@
 	set pc, nc_preamble
 
 :free_begin
-	arg(x, 1,1)
+	set x, [z+11]
 
 	sub x, 1						; address of space hdr
 

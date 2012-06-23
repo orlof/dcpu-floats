@@ -1,10 +1,3 @@
-; --------------------------------------------
-; Title:   float
-; Author:  Teppo
-; Date:    6.6.2012
-; Version: 
-; --------------------------------------------
-
 #segment code
 ; ========================================================================
 ; user unit test code function
@@ -14,36 +7,48 @@
 jsr detect_hardware
 jsr init_monitor
 
+; convert 1st string to float
+set push, stc1              ; 1st arg for atof (input string)
+set push, ftc1              ; 2nd arg for atof (target float = 32 bits)
+jsr atof                    ; call to atof, no return value
+
+; convert 2nd string to float
 set push, stc2
-set push, ftc2
-jsr atof
+set push, ftc2 
+jsr atof 
 
-set push, stc3
-set push, ftc3
-jsr atof
+; division of floats
+set push, float_result      ; quotient address where fdiv stores the result
+set push, ftc1              ; divident
+set push, ftc2              ; divisor
+jsr fdiv                    ; call fdiv, no return value
 
-set push, fres
-set push, ftc2
-set push, ftc3
-jsr fdiv
-
-set push, fres
-set push, sres
+; convert result float to string
+set push, float_result      ; input float (quotient)
+set push, string_result     ; destination string buffer
 jsr ftoa
 
-set a, sres
+set a, string_result
 set b, 64
 jsr print
 
 set pc, hang
 
 #segment data
-:stc2	dat "1000", 0
-:ftc2	dat 0,0
-:stc3	dat "1", 0
-:ftc3	dat 0,0
-:fres	dat 0,0
-:sres	dat "abcdefghijklmnopqrstuvwxyz"
+:stc1
+	dat "123.456", 0      ; divident as string
+:ftc1 
+	dat 0,0               ; space to store divident as float
+
+:stc2 
+	dat "654.321", 0       ; divisor as string
+:ftc2 
+	dat 0,0               ; space to store divisor as float
+
+:float_result 
+	dat 0,0       ; space to store quotient as float
+:string_result 
+	dat "this is just a place holder for ftoa"
    
 #segment code   
 .pass:
