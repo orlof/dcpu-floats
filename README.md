@@ -5,24 +5,17 @@ THIS IS A NAIVE FLOATING POINT IMPLEMENTATION FOR DCPU
 FEATURES
 
 Available functions (in c-like format):
-
-      extern uint16 atof(uint16 *s, float *f)
-
-      extern void ftoa(float *f, uint16 *buf)
-
-      extern void itof(int *i, float *f)
-
-      extern uint16 ftoi(float *f, int *i)
-
-      extern uint16 fcmp(float *f1, float *f2)
-
-      extern void fadd(float *sum, float *term1, float *term2)
-
-      extern void fsub(float *difference, float *minuend, float *subtrahend)
-
-      extern void fmul(float *product, float *factor1, float *factor2)
-
-      extern void fdiv(float *quotient, float *divident, float *divisor)
+```
+extern uint16 atof(uint16 *s, float *f)
+extern void ftoa(float *f, uint16 *buf)
+extern void itof(int *i, float *f)
+extern uint16 ftoi(float *f, int *i)
+extern uint16 fcmp(float *f1, float *f2)
+extern void fadd(float *sum, float *term1, float *term2)
+extern void fsub(float *difference, float *minuend, float *subtrahend)
+extern void fmul(float *product, float *factor1, float *factor2)
+extern void fdiv(float *quotient, float *divident, float *divisor)
+```
 
 SHORTCOMINGS
 
@@ -55,6 +48,7 @@ z+2, z+3 etc. Arguments are located in z-11 (rightmost), z-12
 
 Example
 
+```
 ; convert 1st string to float
 set push, stc1              ; 1st arg for atof (input string)
 set push, ftc1              ; 2nd arg for atof (target float = 32 bits)
@@ -87,3 +81,4 @@ stc2 dat "654.321", 0       ; divisor as string
 
 float_result dat 0,0       ; space to store quotient as float
 :string_result dat "this is just a place holder for ftoa"
+```
