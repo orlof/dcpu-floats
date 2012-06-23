@@ -58,7 +58,7 @@
 
 
 ;----------------------------------------------------------------
-;0X10C-DEVKIT MACROS
+;0X10C-DEVKIT MACROS ( TO BE REMOVED )
 ;----------------------------------------------------------------
 
 ; sets the value of argument to dest
@@ -1525,6 +1525,12 @@
 	set x, j				; return value to x
 
 	jsr nc_postamble
+
+
+
+;----------------------------------------------------------------
+; utility subroutines to handle function setup and cleanup
+;----------------------------------------------------------------
 
 ; postamble - function can call this subroutine to cleanup stack, restore 
 ; registers and return from subroutine
