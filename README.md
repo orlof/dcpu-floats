@@ -1,5 +1,10 @@
-dcpu-admiral
+dcpu-floats
 ============
+
+NOTE: New 3rd generation floating point library is just about to obsolete this.
+
+    https://github.com/orlof/dcpu-fp32
+
 THIS IS A NAIVE FLOATING POINT IMPLEMENTATION FOR DCPU 
 
 FEATURES
