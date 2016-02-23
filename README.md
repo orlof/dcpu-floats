@@ -1,9 +1,8 @@
 dcpu-floats
 ============
 
-NOTE: New 3rd generation floating point library is just about to obsolete this.
-
-    https://github.com/orlof/dcpu-fp32
+NOTE: This repo is the old version of float library. New version is in https://github.com/orlof/dcpu-fp32
+NOTE2: New version does not yet contain routines for ftoa and atof conversions.
 
 THIS IS A NAIVE FLOATING POINT IMPLEMENTATION FOR DCPU 
 
